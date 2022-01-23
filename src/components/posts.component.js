@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+
 import Post from "./post.component";
-import Navbar from './navbar.component';
+import Navbar from "./navbar.component";
+import AddPost from "./addPost.component";
+import Button from "./common/button.component";
 
 class Posts extends Component {
     state = {
@@ -61,30 +64,42 @@ class Posts extends Component {
                 disLikeCount: 0,
             },
         ],
+        formValue: {
+            postTitle: "",
+            postContent: "",
+        },
         toggler: false,
     };
 
     handleAdd = () => {
-        const toggler = !(this.state.toggler);
+        const toggler = !this.state.toggler;
         this.setState({
+            ...this.state,
             toggler,
-        })
+        });
     };
 
-    handleSubmit = (event) => {
-        event.preventDefault();
-        const toggler = !(this.state.toggler);
-        console.log('Form submit')
+    handleSubmit = (newPost) => {
+        const toggler = !this.state.toggler;
+
+        const addNewPost = {...newPost};
+        addNewPost.date = `${new Date().toLocaleDateString()} || ${new Date().toLocaleTimeString()}`
+        addNewPost.image = "../images/img.jpg";
+        addNewPost.disLike = false;
+        addNewPost.likeCount = 0;
+        addNewPost.disLikeCount =  0;
 
         this.setState({
+            ...this.state,
+            posts: [addNewPost, ...this.state.posts],
             toggler,
-        })   
-    }
+        });
+    };
 
     handleLike = (id) => {
         const posts = [...this.state.posts];
         const findPost = posts.find((post) => post.id === id);
-        findPost.like = !(findPost.like);
+        findPost.like = !findPost.like;
         findPost.disLike = false;
 
         this.setState({
@@ -95,7 +110,7 @@ class Posts extends Component {
     handleDisLike = (id) => {
         const posts = [...this.state.posts];
         const findPost = posts.find((post) => post.id === id);
-        findPost.disLike = !(findPost.disLike);
+        findPost.disLike = !findPost.disLike;
         findPost.like = false;
 
         this.setState({
@@ -114,42 +129,34 @@ class Posts extends Component {
 
     countLike = () => {
         const posts = [...this.state.posts];
-        const countLike = posts.filter(post => post.like === true)
-        return countLike.length
+        const countLike = posts.filter((post) => post.like === true);
+        return countLike.length;
     };
 
     countDisLike = () => {
         const posts = [...this.state.posts];
-        const countDislike = posts.filter(post => post.disLike === true)
+        const countDislike = posts.filter((post) => post.disLike === true);
         return countDislike.length;
     };
 
-
     render() {
-        const { posts, toggler } = this.state;
+        const { posts } = this.state;
 
         return (
             <>
                 <Navbar like={this.countLike()} disLike={this.countDisLike()} />
                 <div className="posts">
-                    <button
-                        className=" btn-primary"
+                    <Button
                         type="button"
+                        className="btn btn-primary"
                         onClick={this.handleAdd}
                     >
-                        Add New Post
-                    </button>
-
-                    <div className="form mb-4" style={{display: toggler ? 'block' : 'none'}}>
-                        <form onSubmit={this.handleSubmit}>
-                            <input type='text' className="col-12 mb-2" placeholder="ID" />
-                            <input type='text' className="col-12 mb-2" placeholder="Post Title" />
-                            <input type='date' className="col-12 mb-2" />
-                            <textarea className="col-12" placeholder='Discription' />
-                            <button type="submit" className="btn btn-secondary">Submit</button>
-                        </form>
-                    </div>
-
+                        Add Post
+                    </Button>
+                    <AddPost
+                        handleSubmit={this.handleSubmit}
+                        toggler={this.state.toggler}
+                    />
                     {posts.map((post) => (
                         <Post
                             key={post.id}
